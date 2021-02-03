@@ -2,8 +2,6 @@
 
 # Índice
 
-- [Notas de Database Foundations 1 Intro to Databases](#notas-de-database-foundations-1-intro-to-databases)
-- [Índice](#índice)
 - [Docker y Azure Data Studio](#docker-y-azure-data-studio)
   - [Crear un contenedor SQL Server para KinetEco](#crear-un-contenedor-sql-server-para-kineteco)
   - [Crear un contenedor PostgreSQL para KinetEco](#crear-un-contenedor-postgresql-para-kineteco)
