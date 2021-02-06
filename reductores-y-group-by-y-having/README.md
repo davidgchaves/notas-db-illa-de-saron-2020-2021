@@ -2,8 +2,6 @@
 
 # Índice
 
-- [Reductores, `GROUP BY` y `HAVING`](#reductores-group-by-y-having)
-- [Índice](#índice)
 - [1 Funciones de agregado](#1-funciones-de-agregado)
   - [1.1 Qué son](#11-qué-son)
   - [1.2 Ejemplos](#12-ejemplos)
