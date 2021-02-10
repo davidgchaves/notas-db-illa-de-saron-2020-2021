@@ -37,6 +37,22 @@
   - [Consecuencias de la modificación](#consecuencias-de-la-modificación)
   - [Corrigiendo el problema](#corrigiendo-el-problema)
   - [Borrado de la tabla `categories`](#borrado-de-la-tabla-categories)
+- [(29) Tuplas](#29-tuplas)
+  - [Entidad o tupla](#entidad-o-tupla)
+  - [Orden](#orden)
+  - [Clave primaria (_primary key o PK_)](#clave-primaria-primary-key-o-pk)
+- [(30) `INSERT INTO`](#30-insert-into)
+  - [Inserta tuplas](#inserta-tuplas)
+  - [Insertar 1 sola tupla](#insertar-1-sola-tupla)
+  - [Insertar múltiples tuplas](#insertar-múltiples-tuplas)
+  - [Insertar tuplas seleccionando las columnas](#insertar-tuplas-seleccionando-las-columnas)
+- [(31a) `UPDATE ... SET ... WHERE`](#31a-update--set--where)
+  - [GOTCHA! 👀](#gotcha-)
+- [(31b) `DELETE FROM ... WHERE`](#31b-delete-from--where)
+  - [👀 MEGA-GOTCHA!!!! 👀](#-mega-gotcha-)
+- [(32) A _Script_ of Two Cities](#32-a-script-of-two-cities)
+  - [City 1: SQL Server](#city-1-sql-server)
+  - [City 2: PostgreSQL](#city-2-postgresql)
 
 # Docker y Azure Data Studio
 
@@ -252,4 +268,188 @@ ADD ProductLine CHAR(25);
 
 ```sql
 DROP TABLE products.categories;
+```
+
+# (29) Tuplas
+
+## Entidad o tupla
+
+Una entidad (_entity_) coincide con una tupla o fila: una carta determinada, una mascota determinada, un producto determinado, ...
+
+## Orden
+
+**NO** existe un orden de tuplas predeterminado.
+
+## Clave primaria (_primary key o PK_)
+
+Nos permite identificar una tupla determinada en una tabla.
+
+# (30) `INSERT INTO`
+
+## Inserta tuplas
+
+Nos permite añadir **registros, tuplas, entidades o filas** (las 4 acepciones son equivalentes e intercambiables) a una tabla.
+
+## Insertar 1 sola tupla
+
+```sql
+INSERT INTO products.products
+VALUES
+    ('FCP008', 'First Cold Press', 1, 8, 8.99);
+```
+
+## Insertar múltiples tuplas
+
+```sql
+INSERT INTO products.products
+VALUES
+    ('BI008', 'Basil-Infused EVO',  2,  8, 10.99),
+    ('GI016', 'Garlic-Infused EVO', 2, 16, 15.99);
+```
+
+## Insertar tuplas seleccionando las columnas
+
+- Insertamos `SKU`, `ProductName` y  `Price`.
+- **NO** insertamos `CategoryID` ni `Size` (**se ponen a `NULL`**).
+
+👇👇👇
+
+```sql
+INSERT INTO products.products
+    (SKU, ProductName, Price)
+VALUES
+    ('OGEC004', 'Olive Glow Eye Cream', 18.99);
+```
+
+# (31a) `UPDATE ... SET ... WHERE`
+
+```sql
+UPDATE products.products
+SET
+    CategoryID = 3,
+    Size       = 4
+WHERE SKU = 'OGEC004';
+```
+
+## GOTCHA! 👀
+
+![CUTE GODZILLA](./img/godzilla.gif)
+
+Si no especificamos la cláusula `WHERE` **ACTUALIZA TODAS LAS TUPLAS**.
+
+# (31b) `DELETE FROM ... WHERE`
+
+```sql
+DELETE FROM products.products
+WHERE SKU = 'OGEC004';
+```
+
+## 👀 MEGA-GOTCHA!!!! 👀
+
+![GODZILLA SMASHING BUILDINGS!!!](./img/godzilla-smashing.gif)
+
+Si no especificamos la cláusula `WHERE` **BORRA TODAS LAS TUPLAS**, se crea un agujero negro en nuestra carrera y lo más importante, **un gatito muere**. Se rumorea que existe un **INFIERNO especial** para todas aquellas que usan **`DELETE FROM` sin `WHERE`**.
+
+# (32) A _Script_ of Two Cities
+
+## City 1: SQL Server
+
+```sql
+-- Eliminar cualquier objeto preexistente de la base de datos.
+-- La base de datos Two Trees quedaría vacía
+DROP TABLE  IF EXISTS products.products;
+DROP TABLE  IF EXISTS products.categories;
+DROP SCHEMA IF EXISTS products;
+
+-- Crear el esquema `products`
+GO                        -- NECESARIO EN SQL SERVER
+CREATE SCHEMA products;
+GO                        -- NECESARIO EN SQL SERVER
+
+-- Crear la tabla `products`
+CREATE TABLE products.products (
+    SKU         CHAR(7)        NOT NULL   PRIMARY KEY,
+    ProductName CHAR(50)       NOT NULL,
+    CategoryID  INT,
+    Size        INT,
+    Price       DECIMAL(5,2)   NOT NULL
+);
+
+-- Crear la tabla `categories`
+CREATE TABLE products.categories (
+    CategoryID          INT        PRIMARY KEY,
+    CategoryDescription CHAR(50),
+    ProductLine         CHAR(25)
+);
+
+-- Añadir datos a la tabla `products`
+INSERT INTO products.products
+    (SKU, ProductName, CategoryID, Size, Price)
+VALUES
+    ('FCP008',  'First Cold Press',     1,  8,  8.99),
+    ('BI008',   'Basil-Infused EVO',    2,  8, 10.99),
+    ('GI016',   'Garlic-Infused EVO',   2, 16, 15.99),
+    ('OGEC004', 'Olive Glow Eye Cream', 3,  4, 18.99);
+
+-- Añadir datos a la tabla `categories`
+INSERT INTO products.categories
+    (CategoryID, CategoryDescription, ProductLine)
+VALUES
+    (1, 'Olive Oils',          'Gourmet Chef'),
+    (2, 'Flavor Infused Oils', 'Gourmet Chef'),
+    (3, 'Bath and Beauty',      'Cosmetics');
+
+-- Comprobar que los datos han sido almacenados
+SELECT * FROM products.products;
+SELECT * FROM products.categories;
+```
+
+## City 2: PostgreSQL
+
+```sql
+-- Eliminar cualquier objeto preexistente de la base de datos.
+-- La base de datos Two Trees quedaría vacía
+DROP TABLE  IF EXISTS products.products;
+DROP TABLE  IF EXISTS products.categories;
+DROP SCHEMA IF EXISTS products;
+
+-- Crear el esquema `products`
+CREATE SCHEMA products;
+
+-- Crear la tabla `products`
+CREATE TABLE products.products (
+    SKU         CHAR(7)        NOT NULL   PRIMARY KEY,
+    ProductName CHAR(50)       NOT NULL,
+    CategoryID  INT,
+    Size        INT,
+    Price       DECIMAL(5,2)   NOT NULL
+);
+
+-- Crear la tabla `categories`
+CREATE TABLE products.categories (
+    CategoryID          INT        PRIMARY KEY,
+    CategoryDescription CHAR(50),
+    ProductLine         CHAR(25)
+);
+
+-- Añadir datos a la tabla `products`
+INSERT INTO products.products
+    (SKU, ProductName, CategoryID, Size, Price)
+VALUES
+    ('FCP008',  'First Cold Press',     1,  8,  8.99),
+    ('BI008',   'Basil-Infused EVO',    2,  8, 10.99),
+    ('GI016',   'Garlic-Infused EVO',   2, 16, 15.99),
+    ('OGEC004', 'Olive Glow Eye Cream', 3,  4, 18.99);
+
+-- Añadir datos a la tabla `categories`
+INSERT INTO products.categories
+    (CategoryID, CategoryDescription, ProductLine)
+VALUES
+    (1, 'Olive Oils',          'Gourmet Chef'),
+    (2, 'Flavor Infused Oils', 'Gourmet Chef'),
+    (3, 'Bath and Beauty',      'Cosmetics');
+
+-- Comprobar que los datos han sido almacenados
+SELECT * FROM products.products;
+SELECT * FROM products.categories;
 ```
